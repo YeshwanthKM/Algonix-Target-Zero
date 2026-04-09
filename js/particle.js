@@ -42,15 +42,11 @@ Render
 ==============================================================================*/
 $.Particle.prototype.render = function( i ) {
 	if( this.inView ) {
-		$.ctxmg.save();
-		$.ctxmg.translate( this.x, this.y );
-		
+		// Optimized: No context saves/restores or translations. 
+		// Drawing directly via coordinates is much faster for hundreds of particles.
 		var size = this.speed; 
-		var color = 'hsla(' + this.hue + ', ' + this.saturation + '%, ' + $.util.rand( 50, 100 ) + '%, ' + Math.min(1, this.speed / 5) + ')';
-		
-		$.ctxmg.fillStyle = color;
-		$.ctxmg.fillRect(-size/2, -size/2, size, size);
-		
-		$.ctxmg.restore();
+		var alpha = Math.min(1, this.speed / 5);
+		$.ctxmg.fillStyle = 'hsla(' + this.hue + ', ' + this.saturation + '%, ' + $.util.rand( 50, 100 ) + '%, ' + alpha + ')';
+		$.ctxmg.fillRect(this.x - size/2, this.y - size/2, size, size);
 	}
 };

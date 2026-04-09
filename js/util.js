@@ -20,7 +20,13 @@ Calculations
 $.util.distance = function( p1x, p1y, p2x, p2y ) {
 	var xDistance = p1x - p2x,
 		yDistance = p1y - p2y;
-	return Math.sqrt( Math.pow( xDistance, 2 ) + Math.pow( yDistance, 2 ) );
+	return Math.sqrt( xDistance * xDistance + yDistance * yDistance );
+};
+
+$.util.distanceSq = function( p1x, p1y, p2x, p2y ) {
+	var xDistance = p1x - p2x,
+		yDistance = p1y - p2y;
+	return xDistance * xDistance + yDistance * yDistance;
 };
 
 $.util.rectInRect = function( r1x, r1y, r1w, r1h, r2x, r2y, r2w, r2h ) {

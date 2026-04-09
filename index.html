@@ -204,12 +204,12 @@
                     <button id="hud-autoshoot-btn" class="hud-btn" onclick="toggleHudAutoshoot()">AUTO-SHOOT: OFF</button>
                 </div>
 
-                <!-- NEW HTML MENU (DUEL FOCUS) -->
+                <!-- NEW HTML MENU (DASHBOARD SYNC) -->
                 <div id="menu-overlay">
                     <div class="neon-card">
                         <h1 class="card-title">TARGET ZERO</h1>
-                        <p class="card-tagline">THE ULTIMATE ALGORITHMIC DUEL.<br>HUMAN VS ARTIFICIAL INTELLIGENCE.</p>
-                        <button class="btn-launch" onclick="startPlay()">Enter Duel Arena</button>
+                        <p class="card-tagline">ULTIMATE ALGORITHMIC SURVIVAL.<br>EVADE THE SWARM. BECOME THE TARGET.</p>
+                        <button class="btn-launch" onclick="startPlay()">Launch Game</button>
                     </div>
                 </div>
 			</div>
@@ -217,7 +217,11 @@
 		<script>
 			var $ = {};
 			const urlParams = new URLSearchParams(window.location.search);
-			$.mode = urlParams.get('mode') || 'human';
+			$.mode = 'human'; // Local single player always human
+			if (window.parent !== window) {
+				$.mode = urlParams.get('mode') || 'human';
+			}
+			
 			if ($.mode !== 'human') {
 				document.documentElement.className += ' duel-active';
 			}
@@ -271,7 +275,8 @@
 
             // Menu Helpers
             window.startPlay = function() {
-                location.href = 'duel.html';
+                document.getElementById('menu-overlay').style.display = 'none';
+                $.setState('play');
             };
 
             window.showStats = function() {

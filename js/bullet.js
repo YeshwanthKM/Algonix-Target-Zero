@@ -40,7 +40,11 @@ $.Bullet.prototype.update = function( i ) {
 	var ei = $.enemies.length;
 	while( ei-- ) {
 		var enemy = $.enemies[ ei ];
-		if( $.util.distance( this.x, this.y, enemy.x, enemy.y ) <= enemy.radius ) {
+		// Fast squared distance check to avoid Math.sqrt overhead
+		var distSq = $.util.distanceSq( this.x, this.y, enemy.x, enemy.y );
+		var radSq = enemy.radius * enemy.radius;
+		
+		if( distSq <= radSq ) {
 			if( this.enemiesHit.indexOf( enemy.index ) == -1 ){
 				$.particleEmitters.push( new $.ParticleEmitter( {
 					x: this.x,
