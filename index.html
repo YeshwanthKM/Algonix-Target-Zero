@@ -3,6 +3,7 @@
 	<head>
 		<title>Target Zero</title>
 		<link rel="shortcut icon" id="favicon" />
+		<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 		<style>
 			body {
@@ -66,60 +67,87 @@
 				pointer-events: none !important;
 			}
 
-            /* Main Menu Overlay */
+            /* Main Menu Overlay Redesign */
             #menu-overlay {
                 position: absolute;
                 top: 0;
                 left: 0;
                 width: 800px;
                 height: 600px;
-                background: rgba(0, 0, 0, 0.85);
+                background-color: #050505;
+                background-image: radial-gradient(circle at center, #111 0%, #050505 100%);
                 display: flex;
-                flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                z-index: 1000;
+                z-index: 2000;
+                transition: opacity 0.5s ease;
+            }
+
+            .neon-card {
+                width: 450px;
+                padding: 60px 40px;
+                background: rgba(10, 10, 12, 0.9);
+                border: 2px solid #0ff;
+                border-radius: 20px;
+                box-shadow: 0 0 25px rgba(0, 240, 255, 0.2), 
+                            inset 0 0 15px rgba(0, 240, 255, 0.1);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                backdrop-filter: blur(10px);
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            .neon-card:hover {
+                transform: scale(1.03);
+                box-shadow: 0 0 45px rgba(0, 240, 255, 0.4), 
+                            inset 0 0 25px rgba(0, 240, 255, 0.2);
+            }
+
+            .card-title {
+                font-family: 'Orbitron', sans-serif;
+                font-size: 2.8rem;
+                font-weight: 700;
                 color: #fff;
-                font-family: 'Courier New', Courier, monospace;
+                text-transform: uppercase;
+                letter-spacing: 5px;
+                margin-bottom: 10px;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                             0 0 20px #0ff;
+                margin-top: 0;
             }
 
-            #menu-overlay h1 {
-                font-size: 60px;
-                letter-spacing: 12px;
+            .card-tagline {
+                font-family: 'Inter', sans-serif;
+                font-size: 0.95rem;
+                color: rgba(255, 255, 255, 0.6);
                 margin-bottom: 50px;
-                text-shadow: 0 0 20px #0ff;
-                font-weight: 300;
+                letter-spacing: 1px;
+                line-height: 1.4;
             }
 
-            .menu-btn {
-                width: 300px;
+            .btn-launch {
+                font-family: 'Orbitron', sans-serif;
+                padding: 15px 40px;
+                font-size: 1.1rem;
+                font-weight: 600;
                 background: transparent;
-                border: 1px solid #0ff;
                 color: #0ff;
-                padding: 15px;
-                margin: 10px;
-                font-size: 20px;
+                border: 2px solid #0ff;
+                border-radius: 50px;
                 cursor: pointer;
                 text-transform: uppercase;
-                letter-spacing: 4px;
-                transition: all 0.3s;
+                letter-spacing: 2px;
+                transition: all 0.3s ease;
+                box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+                outline: none;
             }
 
-            .menu-btn:hover {
+            .btn-launch:hover {
                 background: #0ff;
                 color: #000;
-                box-shadow: 0 0 30px #0ff;
-            }
-
-            .menu-btn.secondary {
-                border-color: #666;
-                color: #666;
-            }
-
-            .menu-btn.secondary:hover {
-                border-color: #fff;
-                color: #fff;
-                box-shadow: 0 0 20px #fff;
+                box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
             }
 
             /* In-Game HUD Controls */
@@ -178,9 +206,11 @@
 
                 <!-- NEW HTML MENU -->
                 <div id="menu-overlay">
-                    <h1>TARGET ZERO</h1>
-                    <button class="menu-btn" onclick="startPlay()">PLAY</button>
-                    <button class="menu-btn" id="duel-menu-btn" onclick="location.href='duel.html'">DUEL MODE</button>
+                    <div class="neon-card">
+                        <h1 class="card-title">TARGET ZERO</h1>
+                        <p class="card-tagline">Survive the swarm. Outmaneuver the algorithm.</p>
+                        <button class="btn-launch" onclick="startPlay()">Launch Game</button>
+                    </div>
                 </div>
 			</div>
 		</div>
