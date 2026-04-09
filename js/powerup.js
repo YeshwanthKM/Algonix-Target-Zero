@@ -5,27 +5,14 @@ $.Powerup = function( opt ) {
 	for( var k in opt ) {
 		this[k] = opt[k];
 	}
-	var text = $.text( {
-		ctx: $.ctxmg,
-		x: 0,
-		y: 0,
-		text: this.title,
-		hspacing: 1,
-		vspacing: 0,
-		halign: 'top',
-		valign: 'left',
-		scale: 1,
-		snap: 0,
-		render: 0
-	} );
-	this.hpadding = 8;
-	this.vpadding = 8;
-	this.width = text.width + this.hpadding * 2;
-	this.height = text.height + this.vpadding * 2;
+	this.radius = 15;
+	this.width = this.radius * 2;
+	this.height = this.radius * 2;
 	this.x = this.x - this.width / 2;
 	this.y = this.y - this.height / 2;
 	this.direction = $.util.rand( 0, $.twopi );
 	this.speed = $.util.rand( 0.5, 2 );
+	this.pulse = 0;
 };
 
 /*==============================================================================
@@ -37,6 +24,7 @@ $.Powerup.prototype.update = function( i ) {
 	==============================================================================*/
 	this.x += Math.cos( this.direction ) * this.speed * $.dt;
 	this.y += Math.sin( this.direction ) * this.speed * $.dt;
+	this.pulse += 0.1 * $.dt;
 
 	/*==============================================================================
 	Check Bounds
@@ -61,8 +49,8 @@ $.Powerup.prototype.update = function( i ) {
 			maxSpeed: 15,
 			minDirection: 0,
 			maxDirection: $.twopi,
-			hue: 0,
-			saturation: 0
+			hue: this.hue,
+			saturation: this.saturation
 		} ) );
 		$.powerups.splice( i, 1 );
 		$.powerupsCollected++;
@@ -73,50 +61,55 @@ $.Powerup.prototype.update = function( i ) {
 Render
 ==============================================================================*/
 $.Powerup.prototype.render = function( i ) {
-
-	$.ctxmg.fillStyle = '#000';
-	$.ctxmg.fillRect( this.x - 2, this.y - 2, this.width + 4, this.height + 4 );
-	$.ctxmg.fillStyle = '#555';
-	$.ctxmg.fillRect( this.x - 1, this.y - 1, this.width + 2, this.height + 2 );
+	$.ctxmg.save();
+	$.ctxmg.translate( this.x + this.radius, this.y + this.radius );
+	$.ctxmg.rotate( this.pulse );
 	
-	$.ctxmg.fillStyle = '#111';
-	$.ctxmg.fillRect( this.x, this.y, this.width, this.height );
-
+	// Glowing Cyber Hexagon
+	var color = 'hsl(' + this.hue + ', ' + this.saturation + '%, ' + this.lightness + '%)';
+	
+	$.ctxmg.shadowBlur = 15;
+	$.ctxmg.shadowColor = color;
+	$.ctxmg.fillStyle = 'hsla(0, 0%, 5%, 0.9)';
+	$.ctxmg.strokeStyle = color;
+	$.ctxmg.lineWidth = 3;
+	
 	$.ctxmg.beginPath();
-	$.text( {
-		ctx: $.ctxmg,
-		x: this.x + this.hpadding,
-		y: this.y + this.vpadding + 1,
-		text: this.title,
-		hspacing: 1,
-		vspacing: 0,
-		halign: 'top',
-		valign: 'left',
-		scale: 1,
-		snap: 0,
-		render: true
-	} );	
-	$.ctxmg.fillStyle = '#000';
+	for (var j = 0; j < 6; j++) {
+		var angle = (j * Math.PI / 3);
+		var px = Math.cos(angle) * this.radius;
+		var py = Math.sin(angle) * this.radius;
+		if(j===0) $.ctxmg.moveTo(px, py);
+		else $.ctxmg.lineTo(px, py);
+	}
+	$.ctxmg.closePath();
+	$.ctxmg.fill();
+	$.ctxmg.stroke();
+
+	// Inner core
+	$.ctxmg.fillStyle = color;
+	$.ctxmg.scale(0.5 + Math.sin(this.pulse)*0.2, 0.5 + Math.sin(this.pulse)*0.2); // Pulsing core
+	$.ctxmg.beginPath();
+	for (var j = 0; j < 6; j++) {
+		var angle = (j * Math.PI / 3);
+		var px = Math.cos(angle) * this.radius;
+		var py = Math.sin(angle) * this.radius;
+		if(j===0) $.ctxmg.moveTo(px, py);
+		else $.ctxmg.lineTo(px, py);
+	}
+	$.ctxmg.closePath();
 	$.ctxmg.fill();
 
-	$.ctxmg.beginPath();
-	$.text( {
-		ctx: $.ctxmg,
-		x: this.x + this.hpadding,
-		y: this.y + this.vpadding,
-		text: this.title,
-		hspacing: 1,
-		vspacing: 0,
-		halign: 'top',
-		valign: 'left',
-		scale: 1,
-		snap: 0,
-		render: true
-	} );	
-	$.ctxmg.fillStyle = 'hsl(' + this.hue + ', ' + this.saturation + '%, ' + this.lightness + '%)';
-	$.ctxmg.fill();
-
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.2)';
-	$.ctxmg.fillRect( this.x, this.y, this.width, this.height / 2 );
-	
+	// Draw Initial Native Text without rotation
+	$.ctxmg.restore();
+	$.ctxmg.save();
+	$.ctxmg.translate( this.x + this.radius, this.y + this.radius );
+	$.ctxmg.font = "bold 14px 'Courier New', Courier, monospace";
+	$.ctxmg.textBaseline = "middle";
+	$.ctxmg.textAlign = "center";
+	$.ctxmg.fillStyle = "#fff";
+	$.ctxmg.shadowBlur = 5;
+	$.ctxmg.shadowColor = "#000";
+	$.ctxmg.fillText(this.title.charAt(0), 0, 0); // Just the first letter 
+	$.ctxmg.restore();
 }

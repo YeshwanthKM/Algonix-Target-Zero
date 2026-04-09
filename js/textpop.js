@@ -26,20 +26,13 @@ $.TextPop.prototype.update = function( i ) {
 Render
 ==============================================================================*/
 $.TextPop.prototype.render = function( i ) {
-	$.ctxmg.beginPath();
-	$.text( {
-		ctx: $.ctxmg,
-		x: this.x,
-		y: this.y,
-		text: '+' + this.value,
-		hspacing: 1,
-		vspacing: 0,
-		halign: 'center',
-		valign: 'center',
-		scale: 2,
-		snap: 0,
-		render: 1
-	} );
+	$.ctxmg.save();
+	$.ctxmg.font = "bold 20px 'Courier New', Courier, monospace";
+	$.ctxmg.textBaseline = "middle";
+	$.ctxmg.textAlign = "center";
 	$.ctxmg.fillStyle = 'hsla(' + this.hue + ', ' + this.saturation + '%, ' + this.lightness + '%, ' + this.alpha + ')';
-	$.ctxmg.fill();
+	$.ctxmg.shadowBlur = 10;
+	$.ctxmg.shadowColor = $.ctxmg.fillStyle;
+	$.ctxmg.fillText('+' + this.value, this.x, this.y);
+	$.ctxmg.restore();
 }

@@ -42,11 +42,28 @@ Render
 ==============================================================================*/
 $.Particle.prototype.render = function( i ) {
 	if( this.inView ) {
+		$.ctxmg.save();
+		$.ctxmg.translate( this.x, this.y );
+		
+		// Spin based on speed and direction
+		$.ctxmg.rotate( this.direction + this.speed );
+		
+		var size = this.speed; // Size scales with speed to create chunky shrapnel effect
+		var color = 'hsla(' + this.hue + ', ' + this.saturation + '%, ' + $.util.rand( 50, 100 ) + '%, ' + Math.min(1, this.speed / 5) + ')';
+		
+		$.ctxmg.fillStyle = color;
+		$.ctxmg.shadowBlur = 5;
+		$.ctxmg.shadowColor = color;
+		
 		$.ctxmg.beginPath();
-		$.ctxmg.moveTo( this.x, this.y );
-		$.ctxmg.lineTo( this.ex, this.ey );
-		$.ctxmg.lineWidth = this.lineWidth;
-		$.ctxmg.strokeStyle = 'hsla(' + this.hue + ', ' + this.saturation + '%, ' + $.util.rand( 50, 100 ) + '%, 1)';
-		$.ctxmg.stroke();
+		$.ctxmg.rect(-size/2, -size/2, size, size);
+		$.ctxmg.fill();
+		
+		// Add tiny solid core
+		$.ctxmg.fillStyle = '#fff';
+		$.ctxmg.shadowBlur = 0;
+		$.ctxmg.fillRect(-size/6, -size/6, size/3, size/3);
+		
+		$.ctxmg.restore();
 	}
-}
+};

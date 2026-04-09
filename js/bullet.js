@@ -90,11 +90,26 @@ Render
 ==============================================================================*/
 $.Bullet.prototype.render = function( i ) {
 	if( this.inView ) {
+		$.ctxmg.save();
+		$.ctxmg.translate( this.x, this.y );
+		$.ctxmg.rotate( this.direction );
+		
+		$.ctxmg.shadowBlur = 15;
+		$.ctxmg.shadowColor = this.strokeStyle;
+		
+		// Outer Plasma
+		$.ctxmg.fillStyle = this.strokeStyle;
 		$.ctxmg.beginPath();
-		$.ctxmg.moveTo( this.x, this.y );
-		$.ctxmg.lineTo( this.ex, this.ey );
-		$.ctxmg.lineWidth = this.lineWidth;		
-		$.ctxmg.strokeStyle = this.strokeStyle;
-		$.ctxmg.stroke();
+		// Draw a horizontal pill shape oriented entirely differently than the original line
+		$.ctxmg.ellipse( -this.size / 2, 0, this.size, this.size / 2.5, 0, 0, Math.PI * 2 );
+		$.ctxmg.fill();
+
+		// Inner bright core
+		$.ctxmg.fillStyle = '#fff';
+		$.ctxmg.beginPath();
+		$.ctxmg.ellipse( -this.size / 2, 0, this.size * 0.6, this.size / 4, 0, 0, Math.PI * 2 );
+		$.ctxmg.fill();
+		
+		$.ctxmg.restore();
 	}
 };

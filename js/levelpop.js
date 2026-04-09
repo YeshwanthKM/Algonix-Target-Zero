@@ -30,20 +30,6 @@ $.LevelPop.prototype.update = function( i ) {
 Render
 ==============================================================================*/
 $.LevelPop.prototype.render = function( i ) {
-	$.ctxmg.beginPath();
-	$.text( {
-		ctx: $.ctxmg,
-		x: this.x,
-		y: this.y,
-		text: $.util.pad( this.level, 2 ),
-		hspacing: 3,
-		vspacing: 0,
-		halign: 'right',
-		valign: 'bottom',
-		scale: 12,
-		snap: 1,
-		render: 1
-	} );
 	if( this.tick < this.tickMax * 0.25 ) {
 		var alpha = ( this.tick / ( this.tickMax * 0.25 ) ) * this.baseAlpha;
 	} else if( this.tick > this.tickMax - this.tickMax * 0.25 ) {
@@ -53,6 +39,13 @@ $.LevelPop.prototype.render = function( i ) {
 	}
 	alpha = Math.min( 1, Math.max( 0, alpha ) );
 	
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, ' + alpha + ')';
-	$.ctxmg.fill();
+	$.ctxmg.save();
+	$.ctxmg.font = "bold 200px 'Courier New', Courier, monospace";
+	$.ctxmg.textBaseline = "bottom";
+	$.ctxmg.textAlign = "right";
+	$.ctxmg.fillStyle = 'hsla(180, 100%, 50%, ' + alpha + ')'; // Use a cyan glow instead of pure white
+	$.ctxmg.shadowBlur = 20;
+	$.ctxmg.shadowColor = $.ctxmg.fillStyle;
+	$.ctxmg.fillText($.util.pad( this.level, 2 ), this.x, this.y);
+	$.ctxmg.restore();
 }

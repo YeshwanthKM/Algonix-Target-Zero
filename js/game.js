@@ -79,13 +79,13 @@ $.init = function() {
 	$.buttons = [];
 
 	$.minimap = {		
-		x: 20,
-		y: $.ch - Math.floor( $.ch * 0.1 ) - 20,
+		x: Math.floor( $.cw - ($.cw * 0.1) - 20 ),
+		y: 20,
 		width: Math.floor( $.cw * 0.1 ),
 		height: Math.floor( $.ch * 0.1 ),
 		scale: Math.floor( $.cw * 0.1 ) / $.ww,
-		color: 'hsla(0, 0%, 0%, 0.85)',
-		strokeColor: '#3a3a3a'
+		color: 'hsla(180, 100%, 10%, 0.6)', 
+		strokeColor: 'hsla(180, 100%, 50%, 0.8)'
 	},	
 	$.cOffset = { 
 		left: 0, 
@@ -230,47 +230,50 @@ $.renderFavicon = function() {
 Render Backgrounds
 ==============================================================================*/
 $.renderBackground1 = function() {
+	// Deep Cyberpunk Space Gradient
 	var gradient = $.ctxbg1.createRadialGradient( $.cbg1.width / 2, $.cbg1.height / 2, 0, $.cbg1.width / 2, $.cbg1.height / 2, $.cbg1.height );
-	gradient.addColorStop( 0, 'hsla(0, 0%, 100%, 0.1)' );
-	gradient.addColorStop( 0.65, 'hsla(0, 0%, 100%, 0)' );
+	gradient.addColorStop( 0, 'hsla(280, 80%, 10%, 1)' );
+	gradient.addColorStop( 0.65, 'hsla(260, 100%, 2%, 1)' );
 	$.ctxbg1.fillStyle = gradient;
 	$.ctxbg1.fillRect( 0, 0, $.cbg1.width, $.cbg1.height );
 
-	var i = 2000;
+	// Sparse Neon Dust
+	var i = 1000;
 	while( i-- ) {
-		$.util.fillCircle( $.ctxbg1, $.util.rand( 0, $.cbg1.width ), $.util.rand( 0, $.cbg1.height ), $.util.rand( 0.2, 0.5 ), 'hsla(0, 0%, 100%, ' + $.util.rand( 0.05, 0.2 ) + ')' );
-	}
-
-	var i = 800;
-	while( i-- ) {
-		$.util.fillCircle( $.ctxbg1, $.util.rand( 0, $.cbg1.width ), $.util.rand( 0, $.cbg1.height ), $.util.rand( 0.1, 0.8 ), 'hsla(0, 0%, 100%, ' + $.util.rand( 0.05, 0.5 ) + ')' );
+		var hue = $.util.rand( 0, 1 ) > 0.5 ? 300 : 180;
+		$.util.fillCircle( $.ctxbg1, $.util.rand( 0, $.cbg1.width ), $.util.rand( 0, $.cbg1.height ), $.util.rand( 0.2, 0.5 ), 'hsla(' + hue + ', 100%, 50%, ' + $.util.rand( 0.05, 0.3 ) + ')' );
 	}
 }
 
 $.renderBackground2 = function() {
-	var i = 80;
+	var i = 100;
 	while( i-- ) {
-		$.util.fillCircle( $.ctxbg2, $.util.rand( 0, $.cbg2.width ), $.util.rand( 0, $.cbg2.height ), $.util.rand( 1, 2 ), 'hsla(0, 0%, 100%, ' + $.util.rand( 0.05, 0.15 ) + ')' );
+		var hue = $.util.rand( 0, 1 ) > 0.5 ? 300 : 180;
+		$.util.fillCircle( $.ctxbg2, $.util.rand( 0, $.cbg2.width ), $.util.rand( 0, $.cbg2.height ), $.util.rand( 1, 2.5 ), 'hsla(' + hue + ', 100%, 50%, ' + $.util.rand( 0.1, 0.25 ) + ')' );
 	}
 }
 
 $.renderBackground3 = function() {
-	var i = 40;
+	var i = 30;
 	while( i-- ) {
-		$.util.fillCircle( $.ctxbg3, $.util.rand( 0, $.cbg3.width ), $.util.rand( 0, $.cbg3.height ), $.util.rand( 1, 2.5 ), 'hsla(0, 0%, 100%, ' + $.util.rand( 0.05, 0.1 ) + ')' );
+		var hue = $.util.rand( 180, 220 );
+		$.ctxbg3.shadowBlur = 20;
+		$.ctxbg3.shadowColor = 'hsla(' + hue + ', 100%, 50%, 0.5)';
+		$.util.fillCircle( $.ctxbg3, $.util.rand( 0, $.cbg3.width ), $.util.rand( 0, $.cbg3.height ), $.util.rand( 2, 5 ), 'hsla(' + hue + ', 100%, 50%, ' + $.util.rand( 0.05, 0.2 ) + ')' );
 	}
+	$.ctxbg3.shadowBlur = 0;
 }
 
 $.renderBackground4 = function() {
-	var size = 50;
-	$.ctxbg4.fillStyle = 'hsla(0, 0%, 50%, 0.05)';
+	var size = 100; // Larger synthwave grid
+	$.ctxbg4.fillStyle = 'hsla(180, 100%, 50%, 0.08)'; // Neon Cyan lines
 	var i = Math.round( $.cbg4.height / size );
 	while( i-- ) {
-		$.ctxbg4.fillRect( 0, i * size + 25, $.cbg4.width, 1 );
+		$.ctxbg4.fillRect( 0, i * size + 50, $.cbg4.width, 2 );
 	}
 	i = Math.round( $.cbg4.width / size );
 	while( i-- ) {
-		$.ctxbg4.fillRect( i * size, 0, 1, $.cbg4.height );
+		$.ctxbg4.fillRect( i * size, 0, 2, $.cbg4.height );
 	}
 }
 
@@ -308,37 +311,27 @@ User Interface / UI / GUI / Minimap
 
 $.renderInterface = function() {
 	/*==============================================================================
-	Powerup Timers
+	Powerup Timers (Centered underneath Score)
 	==============================================================================*/
 		for( var i = 0; i < $.definitions.powerups.length; i++ ) {
 			var powerup = $.definitions.powerups[ i ],
 				powerupOn = ( $.powerupTimers[ i ] > 0 );
-			$.ctxmg.beginPath();
-			var powerupText = $.text( {
-				ctx: $.ctxmg,
-				x: $.minimap.x + $.minimap.width + 90,
-				y: $.minimap.y + 4 + ( i * 12 ),
-				text: powerup.title,
-				hspacing: 1,
-				vspacing: 1,
-				halign: 'right',
-				valign: 'top',
-				scale: 1,
-				snap: 1,
-				render: 1
-			} );
-			if( powerupOn ) {
+			
+			if (powerupOn) {
+				var px = $.cw / 2 - 50;
+				var py = 60 + (i * 12);
+				
+				$.ctxmg.beginPath();
+				$.ctxmg.font = "10px 'Courier New', Courier, monospace";
+				$.ctxmg.textAlign = "right";
 				$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, ' + ( 0.25 + ( ( $.powerupTimers[ i ] / 300 ) * 0.75 ) ) + ')';
-			} else {
-				$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.25)';
-			}
-			$.ctxmg.fill();
-			if( powerupOn ) {
+				$.ctxmg.fillText(powerup.title, px - 10, py);
+
 				var powerupBar = {
-					x: powerupText.ex + 5,
-					y: powerupText.sy,
-					width: 110,
-					height: 5
+					x: px,
+					y: py - 4,
+					width: 100,
+					height: 4
 				};
 				$.ctxmg.fillStyle = 'hsl(' + powerup.hue + ', ' + powerup.saturation + '%, ' + powerup.lightness + '%)';
 				$.ctxmg.fillRect( powerupBar.x, powerupBar.y, ( $.powerupTimers[ i ] / 300 ) * powerupBar.width, powerupBar.height );
@@ -350,57 +343,37 @@ $.renderInterface = function() {
 		==============================================================================*/
 		if( $.instructionTick < $.instructionTickMax ){
 			$.instructionTick += $.dt;
-			$.ctxmg.beginPath();
-			$.text( {
-				ctx: $.ctxmg,
-				x: $.cw / 2 - 10,
-				y: $.ch - 20,
-				text: 'MOVE\nAIM/FIRE\nAUTOFIRE\nPAUSE\nMUTE',
-				hspacing: 1,
-				vspacing: 17,
-				halign: 'right',
-				valign: 'bottom',
-				scale: 2,
-				snap: 1,
-				render: 1
-			} );
+			
+			var alpha = 0.5;
 			if( $.instructionTick < $.instructionTickMax * 0.25 ) {
-				var alpha = ( $.instructionTick / ( $.instructionTickMax * 0.25 ) ) * 0.5;
+				alpha = ( $.instructionTick / ( $.instructionTickMax * 0.25 ) ) * 0.5;
 			} else if( $.instructionTick > $.instructionTickMax - $.instructionTickMax * 0.25 ) {
-				var alpha = ( ( $.instructionTickMax - $.instructionTick ) / ( $.instructionTickMax * 0.25 ) ) * 0.5;
-			} else {
-				var alpha = 0.5;
+				alpha = ( ( $.instructionTickMax - $.instructionTick ) / ( $.instructionTickMax * 0.25 ) ) * 0.5;
 			}
 			alpha = Math.min( 1, Math.max( 0, alpha ) );
 			
+			$.ctxmg.font = "bold 18px 'Courier New', Courier, monospace";
+			$.ctxmg.textBaseline = "bottom";
+			
+			// Left column (Keys)
 			$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, ' + alpha + ')';
-			$.ctxmg.fill();
+			$.ctxmg.textAlign = 'right';
+			$.ctxmg.fillText('MOVE', $.cw / 2 - 10, $.ch / 2 + 100);
+			$.ctxmg.fillText('AIM/FIRE', $.cw / 2 - 10, $.ch / 2 + 120);
+			$.ctxmg.fillText('AUTOFIRE', $.cw / 2 - 10, $.ch / 2 + 140);
+			$.ctxmg.fillText('PAUSE', $.cw / 2 - 10, $.ch / 2 + 160);
+			$.ctxmg.fillText('MUTE', $.cw / 2 - 10, $.ch / 2 + 180);
 
-			$.ctxmg.beginPath();
-			$.text( {
-				ctx: $.ctxmg,
-				x: $.cw / 2 + 10,
-				y: $.ch - 20,
-				text: 'WASD/ARROWS\nMOUSE\nF\nP\nM',
-				hspacing: 1,
-				vspacing: 17,
-				halign: 'left',
-				valign: 'bottom',
-				scale: 2,
-				snap: 1,
-				render: 1
-			} );
-			if( $.instructionTick < $.instructionTickMax * 0.25 ) {
-				var alpha = ( $.instructionTick / ( $.instructionTickMax * 0.25 ) ) * 1;
-			} else if( $.instructionTick > $.instructionTickMax - $.instructionTickMax * 0.25 ) {
-				var alpha = ( ( $.instructionTickMax - $.instructionTick ) / ( $.instructionTickMax * 0.25 ) ) * 1;
-			} else {
-				var alpha = 1;
-			}
+			// Right column (Actions)
+			alpha = alpha * 2; // Right column is slightly brighter
 			alpha = Math.min( 1, Math.max( 0, alpha ) );
-			
 			$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, ' + alpha + ')';
-			$.ctxmg.fill();
+			$.ctxmg.textAlign = 'left';
+			$.ctxmg.fillText('WASD/ARROWS', $.cw / 2 + 10, $.ch / 2 + 100);
+			$.ctxmg.fillText('MOUSE', $.cw / 2 + 10, $.ch / 2 + 120);
+			$.ctxmg.fillText('F', $.cw / 2 + 10, $.ch / 2 + 140);
+			$.ctxmg.fillText('P', $.cw / 2 + 10, $.ch / 2 + 160);
+			$.ctxmg.fillText('M', $.cw / 2 + 10, $.ch / 2 + 180);
 		}
 
 		/*==============================================================================
@@ -412,39 +385,45 @@ $.renderInterface = function() {
 		}
 
 	/*==============================================================================
-	Health
+	Health & Progress (Redesigned Cyberpunk HUD)
 	==============================================================================*/
-	$.ctxmg.beginPath();
-	var healthText = $.text( {
-		ctx: $.ctxmg,
-		x: 20,
-		y: 20,
-		text: 'HEALTH',
-		hspacing: 1,
-		vspacing: 1,
-		halign: 'top',
-		valign: 'left',
-		scale: 2,
-		snap: 1,
-		render: 1
-	} );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.5)';
-	$.ctxmg.fill();
-	var healthBar = {
-		x: healthText.ex + 10,
-		y: healthText.sy,
-		width: 110,
-		height: 10
-	};
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 1)';
-	$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.25)';
-	$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height / 2 );
-	$.ctxmg.fillStyle = 'hsla(' + $.hero.life * 120 + ', 100%, 40%, 1)';
-	$.ctxmg.fillRect( healthBar.x, healthBar.y, $.hero.life * healthBar.width, healthBar.height );
-	$.ctxmg.fillStyle = 'hsla(' + $.hero.life * 120 + ', 100%, 75%, 1)';
-	$.ctxmg.fillRect( healthBar.x, healthBar.y, $.hero.life * healthBar.width, healthBar.height / 2 );
+	$.ctxmg.font = "bold 16px 'Courier New', Courier, monospace";
+	$.ctxmg.textBaseline = "top";
+
+	// Health (Bottom Left)
+	$.ctxmg.textAlign = "left";
+	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.7)';
+	$.ctxmg.fillText('INTEGRITY', 20, $.ch - 40);
 	
+	var healthBar = { x: 120, y: $.ch - 40, width: 200, height: 12 };
+	
+	// Angled Mech Background Bar
+	$.ctxmg.beginPath();
+	$.ctxmg.moveTo(healthBar.x, healthBar.y);
+	$.ctxmg.lineTo(healthBar.x + healthBar.width, healthBar.y);
+	$.ctxmg.lineTo(healthBar.x + healthBar.width + 10, healthBar.y + healthBar.height);
+	$.ctxmg.lineTo(healthBar.x - 10, healthBar.y + healthBar.height);
+	$.ctxmg.closePath();
+	$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 0.8)';
+	$.ctxmg.fill();
+
+	// Angled Mech Foreground Bar
+	if( $.hero.life > 0 ) {
+		var lifeWidth = $.hero.life * healthBar.width;
+		$.ctxmg.beginPath();
+		$.ctxmg.moveTo(healthBar.x, healthBar.y);
+		$.ctxmg.lineTo(healthBar.x + lifeWidth, healthBar.y);
+		$.ctxmg.lineTo(healthBar.x + lifeWidth + 10, healthBar.y + healthBar.height);
+		$.ctxmg.lineTo(healthBar.x - 10, healthBar.y + healthBar.height);
+		$.ctxmg.closePath();
+		
+		$.ctxmg.shadowBlur = 10;
+		$.ctxmg.shadowColor = 'hsla(' + $.hero.life * 120 + ', 100%, 50%, 1)';
+		$.ctxmg.fillStyle = 'hsla(' + $.hero.life * 120 + ', 100%, 60%, 1)';
+		$.ctxmg.fill();
+		$.ctxmg.shadowBlur = 0;
+	}
+
 	if( $.hero.takingDamage && $.hero.life > 0.01 ) {
 		$.particleEmitters.push( new $.ParticleEmitter( {
 			x: -$.screen.x + healthBar.x + $.hero.life * healthBar.width,
@@ -461,40 +440,40 @@ $.renderInterface = function() {
 		} ) );
 	}
 
-	/*==============================================================================
-	Progress
-	==============================================================================*/
+	// Progress (Bottom Right/Center)
+	var progX = $.cw - 350;
+	$.ctxmg.textAlign = "right";
+	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.7)';
+	$.ctxmg.fillText('WAVE SYNC', progX, $.ch - 40);
+
+	var progressBar = { x: progX + 20, y: $.ch - 40, width: 200, height: 12 };
+	var progRatio = Math.min(1, $.level.kills / $.level.killsToLevel);
+
 	$.ctxmg.beginPath();
-	var progressText = $.text( {
-		ctx: $.ctxmg,
-		x: healthBar.x + healthBar.width + 40,
-		y: 20,
-		text: 'PROGRESS',
-		hspacing: 1,
-		vspacing: 1,
-		halign: 'top',
-		valign: 'left',
-		scale: 2,
-		snap: 1,
-		render: 1
-	} );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.5)';
+	$.ctxmg.moveTo(progressBar.x, progressBar.y);
+	$.ctxmg.lineTo(progressBar.x + progressBar.width, progressBar.y);
+	$.ctxmg.lineTo(progressBar.x + progressBar.width + 10, progressBar.y + progressBar.height);
+	$.ctxmg.lineTo(progressBar.x - 10, progressBar.y + progressBar.height);
+	$.ctxmg.closePath();
+	$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 0.8)';
 	$.ctxmg.fill();
-	var progressBar = {
-		x: progressText.ex + 10,
-		y: progressText.sy,
-		width: healthBar.width,
-		height: healthBar.height
-	};
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 1)';
-	$.ctxmg.fillRect( progressBar.x, progressBar.y, progressBar.width, progressBar.height );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.25)';
-	$.ctxmg.fillRect( progressBar.x, progressBar.y, progressBar.width, progressBar.height / 2 );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 50%, 1)';
-	$.ctxmg.fillRect( progressBar.x, progressBar.y, ( $.level.kills / $.level.killsToLevel ) * progressBar.width, progressBar.height );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 1)';
-	$.ctxmg.fillRect( progressBar.x, progressBar.y, ( $.level.kills / $.level.killsToLevel ) * progressBar.width, progressBar.height / 2 );
-	
+
+	if (progRatio > 0) {
+		var progWidth = progRatio * progressBar.width;
+		$.ctxmg.beginPath();
+		$.ctxmg.moveTo(progressBar.x, progressBar.y);
+		$.ctxmg.lineTo(progressBar.x + progWidth, progressBar.y);
+		$.ctxmg.lineTo(progressBar.x + progWidth + 10, progressBar.y + progressBar.height);
+		$.ctxmg.lineTo(progressBar.x - 10, progressBar.y + progressBar.height);
+		$.ctxmg.closePath();
+		
+		$.ctxmg.shadowBlur = 10;
+		$.ctxmg.shadowColor = 'hsla(180, 100%, 50%, 1)';
+		$.ctxmg.fillStyle = 'hsla(180, 100%, 60%, 1)';
+		$.ctxmg.fill();
+		$.ctxmg.shadowBlur = 0;
+	}
+
 	if( $.level.kills == $.level.killsToLevel ) {
 		$.particleEmitters.push( new $.ParticleEmitter( {
 			x: -$.screen.x + progressBar.x + progressBar.width,
@@ -512,44 +491,17 @@ $.renderInterface = function() {
 		} ) );
 	}
 
-	/*==============================================================================
-	Score
-	==============================================================================*/
-	$.ctxmg.beginPath();
-	var scoreLabel = $.text( {
-		ctx: $.ctxmg,
-		x: progressBar.x + progressBar.width + 40,
-		y: 20,
-		text: 'SCORE',
-		hspacing: 1,
-		vspacing: 1,
-		halign: 'top',
-		valign: 'left',
-		scale: 2,
-		snap: 1,
-		render: 1
-	} );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.5)';
-	$.ctxmg.fill();
-
-	$.ctxmg.beginPath();
-	var scoreText = $.text( {
-		ctx: $.ctxmg,
-		x: scoreLabel.ex + 10,
-		y: 20,
-		text: $.util.pad( $.score, 6 ),
-		hspacing: 1,
-		vspacing: 1,
-		halign: 'top',
-		valign: 'left',
-		scale: 2,
-		snap: 1,
-		render: 1
-	} );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 1)';
-	$.ctxmg.fill();
-
-	// End of Score Rendering
+	// Score (Top Center)
+	$.ctxmg.textAlign = "center";
+	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.7)';
+	$.ctxmg.fillText('DATA STREAM', $.cw / 2, 10);
+	
+	$.ctxmg.font = "bold 24px 'Courier New', Courier, monospace";
+	$.ctxmg.fillStyle = 'hsla(300, 100%, 60%, 1)';
+	$.ctxmg.shadowBlur = 10;
+	$.ctxmg.shadowColor = 'hsla(300, 100%, 50%, 1)';
+	$.ctxmg.fillText($.util.pad( $.score, 6 ), $.cw / 2, 35);
+	$.ctxmg.shadowBlur = 0;
 };
 
 $.renderMinimap = function() {
@@ -1010,25 +962,15 @@ $.setupStates = function() {
 		var i = $.buttons.length; while( i-- ){ $.buttons[ i ].update( i ) }
 			i = $.buttons.length; while( i-- ){ $.buttons[ i ].render( i ) }
 
-		$.ctxmg.beginPath();
-		var title = $.text( {
-			ctx: $.ctxmg,
-			x: $.cw / 2,
-			y: $.ch / 2 - 100,
-			text: 'TARGET ZERO',
-			hspacing: 2,
-			vspacing: 1,
-			halign: 'center',
-			valign: 'bottom',
-			scale: 10,
-			snap: 1,
-			render: 1
-		} );
-		gradient = $.ctxmg.createLinearGradient( title.sx, title.sy, title.sx, title.ey );
-		gradient.addColorStop( 0, '#fff' );
-		gradient.addColorStop( 1, '#999' );
-		$.ctxmg.fillStyle = gradient;
-		$.ctxmg.fill();
+		$.ctxmg.save();
+		$.ctxmg.font = "bold 80px 'Courier New', Courier, monospace";
+		$.ctxmg.textBaseline = "bottom";
+		$.ctxmg.textAlign = "center";
+		$.ctxmg.fillStyle = 'hsla(180, 100%, 60%, 1)';
+		$.ctxmg.shadowBlur = 30;
+		$.ctxmg.shadowColor = 'hsla(180, 100%, 50%, 1)';
+		$.ctxmg.fillText('TARGET ZERO', $.cw / 2, $.ch / 2 - 100);
+		$.ctxmg.restore();
 
 
 
@@ -1135,25 +1077,15 @@ $.setupStates = function() {
 		$.ctxmg.fillStyle = 'hsla(0, 0%, 0%, 0.4)';
 		$.ctxmg.fillRect( 0, 0, $.cw, $.ch );
 
-		$.ctxmg.beginPath();
-		var pauseText = $.text( {
-			ctx: $.ctxmg,
-			x: $.cw / 2,
-			y: $.ch / 2 - 50,
-			text: 'PAUSED',
-			hspacing: 3,
-			vspacing: 1,
-			halign: 'center',
-			valign: 'bottom',
-			scale: 10,
-			snap: 1,
-			render: 1
-		} );
-		var gradient = $.ctxmg.createLinearGradient( pauseText.sx, pauseText.sy, pauseText.sx, pauseText.ey );
-		gradient.addColorStop( 0, '#fff' );
-		gradient.addColorStop( 1, '#999' );
-		$.ctxmg.fillStyle = gradient;
-		$.ctxmg.fill();
+		$.ctxmg.save();
+		$.ctxmg.font = "bold 80px 'Courier New', Courier, monospace";
+		$.ctxmg.textBaseline = "bottom";
+		$.ctxmg.textAlign = "center";
+		$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 1)';
+		$.ctxmg.shadowBlur = 20;
+		$.ctxmg.shadowColor = 'hsla(0, 0%, 100%, 0.5)';
+		$.ctxmg.fillText('PAUSED', $.cw / 2, $.ch / 2 - 50);
+		$.ctxmg.restore();
 
 		var i = $.buttons.length; while( i-- ){ $.buttons[ i ].render( i ) }
 			i = $.buttons.length; while( i-- ){ $.buttons[ i ].update( i ) }
@@ -1170,66 +1102,40 @@ $.setupStates = function() {
 		var i = $.buttons.length; while( i-- ){ $.buttons[ i ].update( i ) }
 			i = $.buttons.length; while( i-- ){ $.buttons[ i ].render( i ) }
 
-		$.ctxmg.beginPath();
-		var gameoverTitle = $.text( {
-			ctx: $.ctxmg,
-			x: $.cw / 2,
-			y: 150,
-			text: 'GAME OVER',
-			hspacing: 3,
-			vspacing: 1,
-			halign: 'center',
-			valign: 'bottom',
-			scale: 10,
-			snap: 1,
-			render: 1
-		} );
-		var gradient = $.ctxmg.createLinearGradient( gameoverTitle.sx, gameoverTitle.sy, gameoverTitle.sx, gameoverTitle.ey );
-		gradient.addColorStop( 0, '#f22' );
-		gradient.addColorStop( 1, '#b00' );
-		$.ctxmg.fillStyle = gradient;
-		$.ctxmg.fill();
+		$.ctxmg.save();
+		$.ctxmg.font = "bold 80px 'Courier New', Courier, monospace";
+		$.ctxmg.textBaseline = "bottom";
+		$.ctxmg.textAlign = "center";
+		$.ctxmg.fillStyle = 'hsla(0, 100%, 50%, 1)';
+		$.ctxmg.shadowBlur = 30;
+		$.ctxmg.shadowColor = 'hsla(0, 100%, 40%, 1)';
+		$.ctxmg.fillText('GAME OVER', $.cw / 2, 150);
 
-		$.ctxmg.beginPath();
-		var gameoverStatsKeys = $.text( {
-			ctx: $.ctxmg,
-			x: $.cw / 2 - 10,
-			y: gameoverTitle.ey + 51,
-			text: 'SCORE\nLEVEL\nKILLS\nBULLETS\nPOWERUPS\nTIME',
-			hspacing: 1,
-			vspacing: 17,
-			halign: 'right',
-			valign: 'top',
-			scale: 2,
-			snap: 1,
-			render: 1
-		} );		
+		$.ctxmg.font = "bold 20px 'Courier New', Courier, monospace";
+		$.ctxmg.textBaseline = "top";
+		$.ctxmg.textAlign = "right";
 		$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.5)';
-		$.ctxmg.fill();
+		$.ctxmg.shadowBlur = 0;
+		
+		var labels = ['SCORE', 'LEVEL', 'KILLS', 'BULLETS', 'POWERUPS', 'TIME'];
+		for(var k=0; k<labels.length; k++) {
+			$.ctxmg.fillText(labels[k], $.cw / 2 - 10, 200 + (k * 25));
+		}
 
-		$.ctxmg.beginPath();
-		var gameoverStatsValues = $.text( {
-			ctx: $.ctxmg,
-			x: $.cw / 2 + 10,
-			y: gameoverTitle.ey + 51,
-			text: 
-				$.util.commas( $.score ) + '\n' + 
-				( $.level.current + 1 ) + '\n' + 
-				$.util.commas( $.kills ) + '\n' + 
-				$.util.commas( $.bulletsFired ) + '\n' + 
-				$.util.commas( $.powerupsCollected ) + '\n' + 
-				$.util.convertTime( ( $.elapsed * ( 1000 / 60 ) ) / 1000 )
-			,
-			hspacing: 1,
-			vspacing: 17,
-			halign: 'left',
-			valign: 'top',
-			scale: 2,
-			snap: 1,
-			render: 1
-		} );		
+		$.ctxmg.textAlign = "left";
 		$.ctxmg.fillStyle = '#fff';
-		$.ctxmg.fill();
+		var values = [
+			$.util.commas( $.score ),
+			( $.level.current + 1 ),
+			$.util.commas( $.kills ),
+			$.util.commas( $.bulletsFired ),
+			$.util.commas( $.powerupsCollected ),
+			$.util.convertTime( ( $.elapsed * ( 1000 / 60 ) ) / 1000 )
+		];
+		for(var k=0; k<values.length; k++) {
+			$.ctxmg.fillText(values[k], $.cw / 2 + 10, 200 + (k * 25));
+		}
+		$.ctxmg.restore();
 	};
 }
 

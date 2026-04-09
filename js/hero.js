@@ -179,38 +179,45 @@ Render
 ==============================================================================*/
 $.Hero.prototype.render = function() {
 	if( this.life > 0 ) {
+		var fillStyle = this.fillStyle;
 		if( this.takingDamage ) {
-			var fillStyle = 'hsla(0, 0%, ' + $.util.rand( 0, 100 ) + '%, 1)';
+			fillStyle = 'hsla(0, 0%, ' + $.util.rand( 0, 100 ) + '%, 1)';
 			$.ctxmg.fillStyle = 'hsla(0, 0%, ' + $.util.rand( 0, 100 ) + '%, ' + $.util.rand( 0.01, 0.15 ) + ')';
 			$.ctxmg.fillRect( -$.screen.x, -$.screen.y, $.cw, $.ch );
 		} else if( this.weapon.fireFlag > 0 ) {
 			this.weapon.fireFlag -= $.dt;
-			var fillStyle = 'hsla(' + $.util.rand( 0, 359 ) + ', 100%, ' + $.util.rand( 20, 80 ) + '%, 1)';
-		} else {
-			var fillStyle = this.fillStyle;
+			fillStyle = 'hsla(' + $.util.rand( 0, 359 ) + ', 100%, ' + $.util.rand( 50, 90 ) + '%, 1)';
 		}
 
 		$.ctxmg.save();
 		$.ctxmg.translate( this.x, this.y );
-		$.ctxmg.rotate( this.direction - $.pi / 4 );
-		$.ctxmg.fillStyle = fillStyle;
-		$.ctxmg.fillRect( 0, 0, this.radius, this.radius );
-		$.ctxmg.restore();
+		$.ctxmg.rotate( this.direction );
+		
+		// Glow effect
+		$.ctxmg.shadowBlur = 10;
+		$.ctxmg.shadowColor = fillStyle;
 
-		$.ctxmg.save();
-		$.ctxmg.translate( this.x, this.y );	
-		$.ctxmg.rotate( this.direction - $.pi / 4 + $.twopi / 3 );
-		$.ctxmg.fillStyle = fillStyle;
-		$.ctxmg.fillRect( 0, 0, this.radius, this.radius );
-		$.ctxmg.restore();
+		// Draw Stealth Arrowhead
+		$.ctxmg.beginPath();
+		// Nose of the ship pointing right (since 0 radians is right)
+		$.ctxmg.moveTo( this.radius * 1.5, 0 ); 
+		$.ctxmg.lineTo( -this.radius, this.radius ); // Back bottom corner
+		$.ctxmg.lineTo( -this.radius * 0.5, 0 ); // Engine indent
+		$.ctxmg.lineTo( -this.radius, -this.radius ); // Back top corner
+		$.ctxmg.closePath();
 
-		$.ctxmg.save();
-		$.ctxmg.translate( this.x, this.y );	
-		$.ctxmg.rotate( this.direction - $.pi / 4 - $.twopi / 3 );
 		$.ctxmg.fillStyle = fillStyle;
-		$.ctxmg.fillRect( 0, 0, this.radius, this.radius );
-		$.ctxmg.restore();
+		$.ctxmg.fill();
 
-		$.util.fillCircle( $.ctxmg, this.x, this.y, this.radius - 3, fillStyle );
+		// Sharp trailing edge neon lines
+		$.ctxmg.shadowBlur = 0;
+		$.ctxmg.lineWidth = 1;
+		$.ctxmg.strokeStyle = '#fff';
+		$.ctxmg.stroke();
+
+		$.ctxmg.restore();
+		
+		// Inner glowing energy core
+		$.util.fillCircle( $.ctxmg, this.x, this.y, this.radius * 0.2, '#fff' );
 	}	
 };

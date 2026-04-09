@@ -135,18 +135,53 @@ Render
 $.Enemy.prototype.render = function( i ) {
 	if( this.inView ) {
 		var mod = $.enemyOffsetMod / 6;
-		$.util.fillCircle( $.ctxmg, this.x, this.y, this.radius, this.fillStyle );
-		$.util.strokeCircle( $.ctxmg, this.x, this.y, this.radius / 4 + Math.cos( mod ) * this.radius / 4, this.strokeStyle, 1.5 );
-		$.util.strokeCircle( $.ctxmg, this.x, this.y, this.radius - 0.5, this.strokeStyle, 1 );
 		
+		$.ctxmg.save();
+		$.ctxmg.translate( this.x,  this.y );
+		
+		// Different types get different shapes to further distance from Radius Raid
+		var sides = 3 + (this.type % 4); // Triangle, Square, Pentagon, Hexagon based on type
+		
+		$.ctxmg.rotate( mod * (this.type % 2 === 0 ? 1 : -1) );
+		
+		$.ctxmg.beginPath();
+		for(var p=0; p<sides; p++) {
+			var angle = p * (Math.PI * 2) / sides;
+			var px = Math.cos(angle) * this.radius;
+			var py = Math.sin(angle) * this.radius;
+			if(p===0) $.ctxmg.moveTo(px, py);
+			else $.ctxmg.lineTo(px, py);
+		}
+		$.ctxmg.closePath();
+
+		$.ctxmg.shadowBlur = 15;
+		$.ctxmg.shadowColor = this.strokeStyle;
+
+		// Fill the polygon instead of wireframe
+		$.ctxmg.fillStyle = this.fillStyle;
+		$.ctxmg.fill();
+
+		$.ctxmg.lineWidth = 2;
+		$.ctxmg.strokeStyle = '#fff';
+		$.ctxmg.stroke();
+
+		// Inner core detail
+		$.ctxmg.rotate( -mod * 2 );
+		$.ctxmg.beginPath();
+		for(var p=0; p<sides; p++) {
+			var angle = p * (Math.PI * 2) / sides + (Math.PI/sides);
+			var px = Math.cos(angle) * this.radius * 0.5;
+			var py = Math.sin(angle) * this.radius * 0.5;
+			if(p===0) $.ctxmg.moveTo(px, py);
+			else $.ctxmg.lineTo(px, py);
+		}
+		$.ctxmg.closePath();
+		
+		$.ctxmg.shadowBlur = 0;
 		$.ctxmg.strokeStyle = this.strokeStyle;
-		$.ctxmg.lineWidth = 4;
-		$.ctxmg.beginPath();
-		$.ctxmg.arc( this.x, this.y, this.radius - 0.5, mod + $.pi, mod + $.pi + $.pi / 2 );		
 		$.ctxmg.stroke();
-		$.ctxmg.beginPath();
-		$.ctxmg.arc( this.x, this.y, this.radius - 0.5, mod, mod + $.pi / 2 );		
-		$.ctxmg.stroke();
+		
+		$.ctxmg.restore();
 
 		if( $.slow) {
 			$.util.fillCircle( $.ctxmg, this.x, this.y, this.radius, 'hsla(' + $.util.rand( 160, 220 ) + ', 100%, 50%, 0.25)' );
