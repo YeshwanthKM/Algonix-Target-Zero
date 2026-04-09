@@ -45,7 +45,7 @@ $.Bullet.prototype.update = function( i ) {
 				$.particleEmitters.push( new $.ParticleEmitter( {
 					x: this.x,
 					y: this.y,
-					count: Math.floor( $.util.rand( 1, 4 ) ),
+					count: 1, // Reduced for light mode
 					spawnRange: 0,
 					friction: 0.85,
 					minSpeed: 5,
@@ -94,22 +94,12 @@ $.Bullet.prototype.render = function( i ) {
 		$.ctxmg.translate( this.x, this.y );
 		$.ctxmg.rotate( this.direction );
 		
-		$.ctxmg.shadowBlur = 15;
-		$.ctxmg.shadowColor = this.strokeStyle;
-		
-		// Outer Plasma
+		// Simple clean circle bullet
 		$.ctxmg.fillStyle = this.strokeStyle;
 		$.ctxmg.beginPath();
-		// Draw a horizontal pill shape oriented entirely differently than the original line
-		$.ctxmg.ellipse( -this.size / 2, 0, this.size, this.size / 2.5, 0, 0, Math.PI * 2 );
+		$.ctxmg.arc( 0, 0, this.size / 2, 0, Math.PI * 2, false );
 		$.ctxmg.fill();
 
-		// Inner bright core
-		$.ctxmg.fillStyle = '#fff';
-		$.ctxmg.beginPath();
-		$.ctxmg.ellipse( -this.size / 2, 0, this.size * 0.6, this.size / 4, 0, 0, Math.PI * 2 );
-		$.ctxmg.fill();
-		
 		$.ctxmg.restore();
 	}
 };

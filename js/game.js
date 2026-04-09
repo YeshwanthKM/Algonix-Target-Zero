@@ -237,8 +237,8 @@ $.renderBackground1 = function() {
 	$.ctxbg1.fillStyle = gradient;
 	$.ctxbg1.fillRect( 0, 0, $.cbg1.width, $.cbg1.height );
 
-	// Sparse Neon Dust
-	var i = 1000;
+	// Sparse Neon Dust (Reduced for performance)
+	var i = 200;
 	while( i-- ) {
 		var hue = $.util.rand( 0, 1 ) > 0.5 ? 300 : 180;
 		$.util.fillCircle( $.ctxbg1, $.util.rand( 0, $.cbg1.width ), $.util.rand( 0, $.cbg1.height ), $.util.rand( 0.2, 0.5 ), 'hsla(' + hue + ', 100%, 50%, ' + $.util.rand( 0.05, 0.3 ) + ')' );
@@ -257,23 +257,21 @@ $.renderBackground3 = function() {
 	var i = 30;
 	while( i-- ) {
 		var hue = $.util.rand( 180, 220 );
-		$.ctxbg3.shadowBlur = 20;
-		$.ctxbg3.shadowColor = 'hsla(' + hue + ', 100%, 50%, 0.5)';
+		// shadowBlur removed for light mode
 		$.util.fillCircle( $.ctxbg3, $.util.rand( 0, $.cbg3.width ), $.util.rand( 0, $.cbg3.height ), $.util.rand( 2, 5 ), 'hsla(' + hue + ', 100%, 50%, ' + $.util.rand( 0.05, 0.2 ) + ')' );
 	}
-	$.ctxbg3.shadowBlur = 0;
 }
 
 $.renderBackground4 = function() {
-	var size = 100; // Larger synthwave grid
-	$.ctxbg4.fillStyle = 'hsla(180, 100%, 50%, 0.08)'; // Neon Cyan lines
+	var size = 200; // Even larger synthwave grid for less drawing
+	$.ctxbg4.fillStyle = 'hsla(180, 100%, 50%, 0.06)'; // Fainter lines
 	var i = Math.round( $.cbg4.height / size );
 	while( i-- ) {
-		$.ctxbg4.fillRect( 0, i * size + 50, $.cbg4.width, 2 );
+		$.ctxbg4.fillRect( 0, i * size + 50, $.cbg4.width, 1 );
 	}
 	i = Math.round( $.cbg4.width / size );
 	while( i-- ) {
-		$.ctxbg4.fillRect( i * size, 0, 2, $.cbg4.height );
+		$.ctxbg4.fillRect( i * size, 0, 1, $.cbg4.height );
 	}
 }
 
@@ -397,48 +395,23 @@ $.renderInterface = function() {
 	
 	var healthBar = { x: 120, y: $.ch - 40, width: 200, height: 12 };
 	
-	// Angled Mech Background Bar
-	$.ctxmg.beginPath();
-	$.ctxmg.moveTo(healthBar.x, healthBar.y);
-	$.ctxmg.lineTo(healthBar.x + healthBar.width, healthBar.y);
-	$.ctxmg.lineTo(healthBar.x + healthBar.width + 10, healthBar.y + healthBar.height);
-	$.ctxmg.lineTo(healthBar.x - 10, healthBar.y + healthBar.height);
-	$.ctxmg.closePath();
+	// Flat Background Bar
 	$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 0.8)';
-	$.ctxmg.fill();
+	$.ctxmg.fillRect(healthBar.x, healthBar.y, healthBar.width, healthBar.height);
 
-	// Angled Mech Foreground Bar
+	// Flat Foreground Bar
 	if( $.hero.life > 0 ) {
 		var lifeWidth = $.hero.life * healthBar.width;
-		$.ctxmg.beginPath();
-		$.ctxmg.moveTo(healthBar.x, healthBar.y);
-		$.ctxmg.lineTo(healthBar.x + lifeWidth, healthBar.y);
-		$.ctxmg.lineTo(healthBar.x + lifeWidth + 10, healthBar.y + healthBar.height);
-		$.ctxmg.lineTo(healthBar.x - 10, healthBar.y + healthBar.height);
-		$.ctxmg.closePath();
-		
-		$.ctxmg.shadowBlur = 10;
-		$.ctxmg.shadowColor = 'hsla(' + $.hero.life * 120 + ', 100%, 50%, 1)';
 		$.ctxmg.fillStyle = 'hsla(' + $.hero.life * 120 + ', 100%, 60%, 1)';
-		$.ctxmg.fill();
-		$.ctxmg.shadowBlur = 0;
+		$.ctxmg.fillRect(healthBar.x, healthBar.y, lifeWidth, healthBar.height);
 	}
 
+	// Damage particles disabled for performance
+	/*
 	if( $.hero.takingDamage && $.hero.life > 0.01 ) {
-		$.particleEmitters.push( new $.ParticleEmitter( {
-			x: -$.screen.x + healthBar.x + $.hero.life * healthBar.width,
-			y: -$.screen.y + healthBar.y + healthBar.height / 2,
-			count: 1,
-			spawnRange: 2,
-			friction: 0.85,
-			minSpeed: 2,
-			maxSpeed: 20,
-			minDirection: $.pi / 2 - 0.2,
-			maxDirection: $.pi / 2 + 0.2,
-			hue: $.hero.life * 120,
-			saturation: 100
-		} ) );
+        ...
 	}
+	*/
 
 	// Progress (Bottom Right/Center)
 	var progX = $.cw - 350;
@@ -449,29 +422,14 @@ $.renderInterface = function() {
 	var progressBar = { x: progX + 20, y: $.ch - 40, width: 200, height: 12 };
 	var progRatio = Math.min(1, $.level.kills / $.level.killsToLevel);
 
-	$.ctxmg.beginPath();
-	$.ctxmg.moveTo(progressBar.x, progressBar.y);
-	$.ctxmg.lineTo(progressBar.x + progressBar.width, progressBar.y);
-	$.ctxmg.lineTo(progressBar.x + progressBar.width + 10, progressBar.y + progressBar.height);
-	$.ctxmg.lineTo(progressBar.x - 10, progressBar.y + progressBar.height);
-	$.ctxmg.closePath();
+	// Flat Background Bar
 	$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 0.8)';
-	$.ctxmg.fill();
+	$.ctxmg.fillRect(progressBar.x, progressBar.y, progressBar.width, progressBar.height);
 
 	if (progRatio > 0) {
 		var progWidth = progRatio * progressBar.width;
-		$.ctxmg.beginPath();
-		$.ctxmg.moveTo(progressBar.x, progressBar.y);
-		$.ctxmg.lineTo(progressBar.x + progWidth, progressBar.y);
-		$.ctxmg.lineTo(progressBar.x + progWidth + 10, progressBar.y + progressBar.height);
-		$.ctxmg.lineTo(progressBar.x - 10, progressBar.y + progressBar.height);
-		$.ctxmg.closePath();
-		
-		$.ctxmg.shadowBlur = 10;
-		$.ctxmg.shadowColor = 'hsla(180, 100%, 50%, 1)';
 		$.ctxmg.fillStyle = 'hsla(180, 100%, 60%, 1)';
-		$.ctxmg.fill();
-		$.ctxmg.shadowBlur = 0;
+		$.ctxmg.fillRect(progressBar.x, progressBar.y, progWidth, progressBar.height);
 	}
 
 	if( $.level.kills == $.level.killsToLevel ) {
@@ -498,10 +456,8 @@ $.renderInterface = function() {
 	
 	$.ctxmg.font = "bold 24px 'Courier New', Courier, monospace";
 	$.ctxmg.fillStyle = 'hsla(300, 100%, 60%, 1)';
-	$.ctxmg.shadowBlur = 10;
-	$.ctxmg.shadowColor = 'hsla(300, 100%, 50%, 1)';
+	// shadowBlur removed for performance
 	$.ctxmg.fillText($.util.pad( $.score, 6 ), $.cw / 2, 35);
-	$.ctxmg.shadowBlur = 0;
 };
 
 $.renderMinimap = function() {
@@ -740,16 +696,9 @@ $.updateScreen = function() {
 	$.screen.x += xSnap * $.dt;
 	$.screen.y += ySnap * $.dt;
 
-	// update rumble levels, keep X and Y changes consistent, apply rumble
-	if( $.rumble.level > 0 ) {
-		$.rumble.level -= $.rumble.decay;
-		$.rumble.level = ( $.rumble.level < 0 ) ? 0 : $.rumble.level;			
-		$.rumble.x = $.util.rand( -$.rumble.level, $.rumble.level );
-		$.rumble.y = $.util.rand( -$.rumble.level, $.rumble.level );
-	} else {
-		$.rumble.x = 0;
-		$.rumble.y = 0;
-	}
+	// update rumble levels disabled for performance
+	$.rumble.x = 0;
+	$.rumble.y = 0;
 
 	//$.screen.x -= $.rumble.x;
 	//$.screen.y -= $.rumble.y;
