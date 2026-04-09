@@ -1,0 +1,327 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Target Zero</title>
+		<link rel="shortcut icon" id="favicon" />
+
+		<style>
+			body {
+				background: #080808;
+			}
+
+			#wrap.centered {
+				left: 50%;		
+				position: absolute;
+				top: 50%;
+                margin-left: -410px; /* (800 + 20) / -2 */
+                margin-top: -310px; /* (600 + 20) / -2 */
+			}
+
+			.loaded #wrap {				
+				opacity: 1;			
+			}
+
+            #wrap.duel-mode {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin: 10px auto;
+            }
+
+			#wrap-inner {
+				background: #000;				
+				overflow: hidden;
+				position: relative;				
+			}
+
+			canvas {
+				cursor: crosshair;
+				display: block;
+				left: 0;
+				position: absolute;
+				top: 0;
+			}
+
+			/* Scaling for Duel Mode */
+			@media (max-width: 820px) {
+				#wrap {
+					transform: scale(0.85);
+					transform-origin: top center;
+				}
+			}
+
+			@media (max-width: 600px) {
+				#wrap {
+					transform: scale(0.65);
+					transform-origin: top center;
+				}
+			}
+
+			/* Hide menu buttons if in a duel mode to keep it clean */
+			.duel-active #states, .duel-active .button {
+				display: none !important;
+			}
+
+			.no-mouse {
+				pointer-events: none !important;
+			}
+
+            /* Main Menu Overlay */
+            #menu-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 800px;
+                height: 600px;
+                background: rgba(0, 0, 0, 0.85);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                color: #fff;
+                font-family: 'Courier New', Courier, monospace;
+            }
+
+            #menu-overlay h1 {
+                font-size: 60px;
+                letter-spacing: 12px;
+                margin-bottom: 50px;
+                text-shadow: 0 0 20px #0ff;
+                font-weight: 300;
+            }
+
+            .menu-btn {
+                width: 300px;
+                background: transparent;
+                border: 1px solid #0ff;
+                color: #0ff;
+                padding: 15px;
+                margin: 10px;
+                font-size: 20px;
+                cursor: pointer;
+                text-transform: uppercase;
+                letter-spacing: 4px;
+                transition: all 0.3s;
+            }
+
+            .menu-btn:hover {
+                background: #0ff;
+                color: #000;
+                box-shadow: 0 0 30px #0ff;
+            }
+
+            .menu-btn.secondary {
+                border-color: #666;
+                color: #666;
+            }
+
+            .menu-btn.secondary:hover {
+                border-color: #fff;
+                color: #fff;
+                box-shadow: 0 0 20px #fff;
+            }
+
+            /* In-Game HUD Controls */
+            #hud-controls {
+                position: absolute;
+                top: 45px;
+                right: 20px;
+                display: flex;
+                gap: 10px;
+                z-index: 50;
+                pointer-events: auto;
+            }
+
+            .hud-btn {
+                background: rgba(0, 0, 0, 0.5);
+                border: 1px solid #0ff;
+                color: #0ff;
+                padding: 5px 10px;
+                font-family: inherit;
+                font-size: 10px;
+                cursor: pointer;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                transition: all 0.2s;
+            }
+
+            .hud-btn:hover {
+                background: #0ff;
+                color: #000;
+            }
+
+            .hud-btn.active {
+                background: #0ff;
+                color: #000;
+                box-shadow: 0 0 10px #0ff;
+            }
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<div id="wrap-inner">
+				<canvas id="cbg1"></canvas>
+				<canvas id="cbg2"></canvas>
+				<canvas id="cbg3"></canvas>
+				<canvas id="cbg4"></canvas>
+				<canvas id="cmg"></canvas>
+				<canvas id="cfg"></canvas>
+
+                <!-- In-Game HUD Controls -->
+                <div id="hud-controls" style="display: none;">
+                    <button id="hud-pause-btn" class="hud-btn" onclick="toggleHudPause()">PAUSE</button>
+                    <button id="hud-retry-btn" class="hud-btn" style="display: none; border-color: #0f0; color: #0f0;" onclick="startPlay()">PLAY AGAIN</button>
+                    <button id="hud-exit-btn" class="hud-btn" style="border-color: #f00; color: #f00;" onclick="location.href='index.html'">EXIT</button>
+                    <button id="hud-autoshoot-btn" class="hud-btn" onclick="toggleHudAutoshoot()">AUTO-SHOOT: OFF</button>
+                </div>
+
+                <!-- NEW HTML MENU -->
+                <div id="menu-overlay">
+                    <h1>TARGET ZERO</h1>
+                    <button class="menu-btn" onclick="startPlay()">PLAY</button>
+                    <button class="menu-btn" id="duel-menu-btn" onclick="location.href='duel.html'">DUEL MODE</button>
+                </div>
+			</div>
+		</div>
+		<script>
+			var $ = {};
+			const urlParams = new URLSearchParams(window.location.search);
+			$.mode = urlParams.get('mode') || 'human';
+			if ($.mode !== 'human') {
+				document.documentElement.className += ' duel-active';
+			}
+			if ($.mode === 'ai') {
+				document.body.className += ' no-mouse';
+			}
+		</script>
+		<script src="js/jsfxr.js"></script>
+		<script src="js/util.js"></script>
+		<script src="js/storage.js"></script>
+		<script src="js/definitions.js"></script>
+		<script src="js/audio.js"></script>		
+		<script src="js/text.js"></script>
+		<script src="js/hero.js"></script>
+		<script src="js/enemy.js"></script>
+		<script src="js/bullet.js"></script>
+		<script src="js/explosion.js"></script>
+		<script src="js/powerup.js"></script>
+		<script src="js/particle.js"></script>
+		<script src="js/particleemitter.js"></script>
+		<script src="js/textpop.js"></script>
+		<script src="js/levelpop.js"></script>
+		<script src="js/button.js"></script>
+		<script src="js/game.js"></script>
+		<script>
+			// Load AI Controller if needed
+			if ($.mode === 'ai') {
+				const script = document.createElement('script');
+				script.src = 'js/ai_controller.js';
+				document.body.appendChild(script);
+			}
+
+			// Passive setup: Wait for parent to push configuration
+			if (window.parent !== window) {
+				window.addEventListener('message', (event) => {
+					const data = event.data;
+					if (data.type === 'command' && data.action === 'setup') {
+						console.log('Setup received for mode:', $.mode);
+						// Send ACK back to parent
+						window.parent.postMessage({ type: 'ready', mode: $.mode }, '*');
+					}
+					// Also handle start to clear any local state or logic
+					if (data.type === 'command' && data.action === 'start') {
+						console.log('Duel start command received');
+					}
+				});
+			}
+
+			// Initialize the game engine
+			$.init();
+
+            // Menu Helpers
+            window.startPlay = function() {
+                document.getElementById('menu-overlay').style.display = 'none';
+                $.reset();
+                $.audio.play('levelup');
+                $.setState('play');
+            };
+
+            window.showStats = function() {
+                document.getElementById('menu-overlay').style.display = 'none';
+                $.setState('stats');
+            };
+
+            // HUD Helpers
+            window.toggleHudPause = function() {
+                if ($.state === 'pause') {
+                    $.lt = Date.now() + 1000;
+                    $.setState('play');
+                } else {
+                    $.setState('pause');
+                }
+            };
+
+            window.toggleHudAutoshoot = function() {
+                $.autofire = $.autofire ? 0 : 1;
+                const btn = document.getElementById('hud-autoshoot-btn');
+                btn.innerText = `AUTO-SHOOT: ${$.autofire ? 'ON' : 'OFF'}`;
+                btn.classList.toggle('active', !!$.autofire);
+            };
+
+            // Toggle menu visibility based on game state
+            setInterval(() => {
+                if (window.parent === window) {
+                    const overlay = document.getElementById('menu-overlay');
+                    const hud = document.getElementById('hud-controls');
+                    const pauseBtn = document.getElementById('hud-pause-btn');
+                    const retryBtn = document.getElementById('hud-retry-btn');
+                    const exitBtn = document.getElementById('hud-exit-btn');
+                    const autoshootBtn = document.getElementById('hud-autoshoot-btn');
+                    
+                    if ($.state === 'menu') {
+                        overlay.style.display = 'flex';
+                        hud.style.display = 'none';
+                        document.getElementById('duel-menu-btn').style.display = 'block';
+                    } else {
+                        overlay.style.display = 'none';
+                        hud.style.display = 'flex';
+                        
+                        if ($.state === 'gameover') {
+                            pauseBtn.style.display = 'none';
+                            autoshootBtn.style.display = 'none';
+                            retryBtn.style.display = 'block';
+                            exitBtn.style.display = 'block';
+                        } else {
+                            pauseBtn.style.display = 'block';
+                            autoshootBtn.style.display = 'block';
+                            retryBtn.style.display = 'none';
+                            exitBtn.style.display = 'block';
+                            pauseBtn.innerText = ($.state === 'pause') ? 'RESUME' : 'PAUSE';
+                        }
+                    }
+                }
+            }, 100);
+
+            // Hide overlay if in Duel Mode iframe
+            if (window.parent !== window) {
+                document.getElementById('menu-overlay').style.display = 'none';
+            }
+
+			setInterval(() => {
+				if (window.parent !== window) {
+					// Only report life if we are in 'play' or 'pause' state and hero exists
+					const reportLife = ($.state === 'play' || $.state === 'pause') && $.hero ? $.hero.life : (($.state === 'play' || $.state === 'pause') ? 1 : 0);
+					window.parent.postMessage({
+						type: 'stats',
+						mode: $.mode,
+						score: $.score || 0,
+						kills: $.kills || 0,
+						life: reportLife,
+						level: $.level ? $.level.current + 1 : 0
+					}, '*');
+				}
+			}, 500);
+		</script>
+	</body>
+</html>

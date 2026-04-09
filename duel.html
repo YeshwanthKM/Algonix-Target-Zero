@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Target Zero - AI vs Human Duel</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #080808;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #dashboard {
+            height: 100px;
+            background: #000;
+            border-bottom: 2px solid #0ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            z-index: 100;
+        }
+
+        .stat-group {
+            display: flex;
+            gap: 30px;
+        }
+
+        .side-stats {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px #0ff;
+        }
+
+        #timer-container {
+            text-align: center;
+            min-width: 150px;
+        }
+
+        #timer {
+            font-size: 32px;
+            color: #0f0;
+            text-shadow: 0 0 10px #0f0;
+        }
+
+        #duel-screens {
+            display: flex;
+            flex: 1;
+            background: #050505;
+        }
+
+        .frame-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid #111;
+        }
+
+        .frame-label {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 6px 20px;
+            border: 1px solid #0ff;
+            font-size: 14px;
+            z-index: 10;
+            pointer-events: none;
+            letter-spacing: 3px;
+        }
+
+        iframe {
+            width: 800px;
+            height: 600px;
+            border: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Responsive Scaling for Iframe Content */
+        @media (max-width: 1600px) { iframe { transform: translate(-50%, -50%) scale(0.9); } }
+        @media (max-width: 1400px) { iframe { transform: translate(-50%, -50%) scale(0.8); } }
+        @media (max-width: 1200px) { iframe { transform: translate(-50%, -50%) scale(0.7); } }
+
+        #start-overlay {
+            position: fixed;
+            top: 100px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 100px);
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 500;
+            backdrop-filter: blur(5px);
+        }
+
+        #play-btn {
+            background: transparent;
+            color: #0f0;
+            border: 3px solid #0f0;
+            padding: 30px 80px;
+            font-size: 48px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px #0f0;
+        }
+
+        #play-btn:disabled {
+            border-color: #444;
+            color: #444;
+            box-shadow: none;
+            cursor: wait;
+        }
+
+        #play-btn:not(:disabled):hover {
+            background: #0f0;
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        #status-text {
+            margin-top: 20px;
+            color: #0ff;
+            letter-spacing: 2px;
+            font-size: 14px;
+        }
+
+        /* Auto-Shoot Toggle */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #222;
+            transition: .4s;
+            border: 1px solid #0ff;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #0ff;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #0ff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+            background-color: #000;
+        }
+
+        .toggle-label {
+            font-size: 10px;
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #results-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #results-table {
+            width: 700px;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        #results-table th, #results-table td {
+            padding: 20px;
+            border: 1px solid #222;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        #results-table th { color: #0ff; }
+        .winner { color: #0f0; font-weight: bold; text-shadow: 0 0 10px #0f0; }
+        .loser { color: #f22; opacity: 0.7; }
+
+        .btn-small {
+            background: #000;
+            color: #0ff;
+            border: 1px solid #0ff;
+            padding: 10px 20px;
+            margin-top: 40px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div id="dashboard">
+        <div class="stat-group">
+            <div class="side-stats" style="align-items: flex-start;">
+                <div class="stat-label">ALGORITHM</div>
+                <div id="ai-life" class="stat-value">HEALTH: 100%</div>
+                <div id="ai-score" class="stat-value">SCORE: 000000</div>
+            </div>
+        </div>
+
+        <div id="timer-container">
+            <div class="stat-label">DUEL TIME</div>
+            <div id="timer">00:00.0</div>
+            <div id="dashboard-controls" style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
+                <div class="toggle-container">
+                    <span class="toggle-label">Auto-Shoot</span>
+                    <label class="switch">
+                        <input type="checkbox" id="autoshoot-toggle" onchange="broadcastAutofire()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button id="pause-btn" class="btn-status" style="border: 1px solid #0ff; color: #0ff; background: transparent; padding: 4px 10px; font-size: 10px; cursor: pointer;" onclick="togglePause()" disabled>PAUSE</button>
+                <button class="btn-status" style="border: 1px solid #f00; color: #f00; background: transparent; padding: 4px 10px; font-size: 10px; cursor: pointer;" onclick="location.href='index.html'">EXIT</button>
+            </div>
+        </div>
+
+        <div class="stat-group">
+            <div class="side-stats" style="align-items: flex-end;">
+                <div class="stat-label">PILOT</div>
+                <div id="human-life" class="stat-value">HEALTH: 100%</div>
+                <div id="human-score" class="stat-value">SCORE: 000000</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="start-overlay">
+        <button id="play-btn" disabled onclick="startDuel()">START DUEL</button>
+        <div id="status-text">WAITING FOR INSTANCES...</div>
+    </div>
+
+    <div id="duel-screens">
+        <div class="frame-container">
+            <div class="frame-label">AUTOMATED</div>
+            <iframe id="ai-frame" src="./?mode=ai"></iframe>
+        </div>
+        <div class="frame-container">
+            <div class="frame-label">PILOT</div>
+            <iframe id="human-frame" src="./?mode=human"></iframe>
+        </div>
+    </div>
+
+    <div id="results-overlay">
+        <h1 style="font-size: 64px; color: #0ff; margin-bottom: 0;">DUEL ENDED</h1>
+        <div id="winner-banner" style="font-size: 32px; color: #0f0; margin-bottom: 30px;">HUMAN WINS!</div>
+        
+        <table id="results-table">
+            <thead>
+                <tr>
+                    <th>METRIC</th>
+                    <th>ALGORITHM</th>
+                    <th>PILOT</th>
+                </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+        </table>
+
+        <button class="btn-small" onclick="location.reload()">REMATCH</button>
+    </div>
+
+    <script>
+        let startTime = 0;
+        let timerInterval;
+        let duelStarted = false;
+        
+        let readyState = {
+            ai: false,
+            human: false
+        };
+
+        let stats = {
+            ai: { score: 0, kills: 0, life: 1, level: 1, dead: false, endTime: 0 },
+            human: { score: 0, kills: 0, life: 1, level: 1, dead: false, endTime: 0 }
+        };
+
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            
+            if (data.type === 'ready') {
+                console.log('Instance reported READY:', data.mode);
+                readyState[data.mode] = true;
+                updateStartButton();
+            }
+
+            if (data.type === 'stats') {
+                const mode = data.mode;
+                if (!stats[mode]) return; // Guard for uninitialized
+                stats[mode].score = data.score;
+                stats[mode].kills = data.kills;
+                stats[mode].life = data.life;
+                stats[mode].level = data.level;
+
+                if (!stats[mode].dead) {
+                    const label = (mode === 'human') ? 'human' : 'ai';
+                    document.getElementById(`${label}-life`).innerText = `HEALTH: ${Math.max(0, Math.round(data.life * 100))}%`;
+                    document.getElementById(`${label}-score`).innerText = `SCORE: ${String(data.score).padStart(6, '0')}`;
+                }
+
+                if (duelStarted && data.life <= 0 && !stats[mode].dead) {
+                    // Grace period: Only allow death after 2 seconds of duel time
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    if (elapsed > 2) {
+                        stats[mode].dead = true;
+                        stats[mode].endTime = elapsed;
+                        checkDuelOver();
+                    }
+                }
+            }
+        });
+
+        function setupFrame(mode) {
+            console.log('Setting up frame:', mode);
+            const frame = document.getElementById(mode + '-frame').contentWindow;
+            frame.postMessage({ type: 'command', action: 'setup' }, '*');
+        }
+
+        // Attach onload pings
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('ai-frame').onload = () => setupFrame('ai');
+            document.getElementById('human-frame').onload = () => setupFrame('human');
+            
+            // Fast Fallback: If they load super fast before this script, ping them anyway
+            setTimeout(() => { if(!readyState.ai) setupFrame('ai'); }, 200);
+            setTimeout(() => { if(!readyState.human) setupFrame('human'); }, 500);
+            setTimeout(() => { if(!readyState.ai) setupFrame('ai'); }, 1000);
+            setTimeout(() => { if(!readyState.human) setupFrame('human'); }, 1000);
+        });
+
+        function updateStartButton() {
+            if (readyState.ai && readyState.human) {
+                document.getElementById('play-btn').disabled = false;
+                document.getElementById('pause-btn').disabled = false;
+                document.getElementById('status-text').innerText = "SYSTEMS READY. PILOT, STAND BY.";
+            } else {
+                let status = "INITIALIZING:";
+                if (!readyState.ai) status += " [ALGORITHM]";
+                if (!readyState.human) status += " [PILOT]";
+                document.getElementById('status-text').innerText = status;
+            }
+        }
+
+        function startDuel() {
+            duelStarted = true;
+            startTime = Date.now();
+            document.getElementById('start-overlay').style.display = 'none';
+
+            // Sync stats reset
+            stats.ai = { score: 0, kills: 0, life: 1, level: 1, dead: false, endTime: 0 };
+            stats.human = { score: 0, kills: 0, life: 1, level: 1, dead: false, endTime: 0 };
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 100);
+
+            const aiFrame = document.getElementById('ai-frame').contentWindow;
+            const humanFrame = document.getElementById('human-frame').contentWindow;
+            
+            function sendStart() {
+                aiFrame.postMessage({ type: 'command', action: 'start' }, '*');
+                humanFrame.postMessage({ type: 'command', action: 'start' }, '*');
+            }
+
+            // Authoritative launch
+            sendStart();
+            setTimeout(sendStart, 100);
+            setTimeout(sendStart, 500);
+
+            document.getElementById('human-frame').focus();
+        }
+
+        function broadcastAutofire() {
+            const enabled = document.getElementById('autoshoot-toggle').checked;
+            const aiFrame = document.getElementById('ai-frame').contentWindow;
+            const humanFrame = document.getElementById('human-frame').contentWindow;
+            
+            const msg = { type: 'command', action: 'autofire', value: enabled };
+            aiFrame.postMessage(msg, '*');
+            humanFrame.postMessage(msg, '*');
+        }
+
+        let isPaused = false;
+        let totalElapsed = 0;
+        let lastTimestamp = 0;
+
+        function togglePause() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('pause-btn');
+            btn.innerText = isPaused ? 'RESUME' : 'PAUSE';
+            btn.style.borderColor = isPaused ? '#0f0' : '#0ff';
+            btn.style.color = isPaused ? '#0f0' : '#0ff';
+
+            const cmd = isPaused ? 'pause' : 'resume';
+            const aiFrame = document.getElementById('ai-frame').contentWindow;
+            const humanFrame = document.getElementById('human-frame').contentWindow;
+            
+            aiFrame.postMessage({ type: 'command', action: cmd }, '*');
+            humanFrame.postMessage({ type: 'command', action: cmd }, '*');
+
+            if (isPaused) {
+                totalElapsed += (Date.now() - lastTimestamp);
+                clearInterval(timerInterval);
+            } else {
+                lastTimestamp = Date.now();
+                timerInterval = setInterval(updateTimer, 100);
+            }
+        }
+
+        function updateTimer() {
+            const now = Date.now();
+            const currentSession = now - lastTimestamp;
+            const elapsed = (totalElapsed + currentSession) / 1000;
+            document.getElementById('timer').innerText = formatTime(elapsed);
+        }
+
+        function startDuel() {
+            duelStarted = true;
+            startTime = Date.now();
+            lastTimestamp = startTime;
+            totalElapsed = 0;
+            document.getElementById('start-overlay').style.display = 'none';
+
+            // Sync stats reset
+            stats.ai = { score: 0, kills: 0, life: 1, level: 1, dead: false, endTime: 0 };
+            stats.human = { score: 0, kills: 0, life: 1, level: 1, dead: false, endTime: 0 };
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 100);
+
+            const aiFrame = document.getElementById('ai-frame').contentWindow;
+            const humanFrame = document.getElementById('human-frame').contentWindow;
+            
+            function sendStart() {
+                aiFrame.postMessage({ type: 'command', action: 'start' }, '*');
+                humanFrame.postMessage({ type: 'command', action: 'start' }, '*');
+            }
+
+            // Authoritative launch
+            sendStart();
+            setTimeout(sendStart, 100);
+            setTimeout(sendStart, 500);
+
+            document.getElementById('human-frame').focus();
+        }
+
+        function formatTime(s) {
+            const mins = Math.floor(s / 60);
+            const secs = Math.floor(s % 60);
+            const ms = Math.floor((s % 1) * 10);
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${ms}`;
+        }
+
+        function checkDuelOver() {
+            if (stats.ai.dead && stats.human.dead) {
+                clearInterval(timerInterval);
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const body = document.getElementById('results-body');
+            const metrics = [
+                { label: 'SCORE', key: 'score' },
+                { label: 'KILLS', key: 'kills' },
+                { label: 'SURVIVAL', key: 'endTime', format: formatTime },
+            ];
+
+            body.innerHTML = '';
+            let humWins = 0;
+            metrics.forEach(m => {
+                const aiVal = stats.ai[m.key];
+                const humVal = stats.human[m.key];
+                const aiClass = aiVal > humVal ? 'winner' : (aiVal < humVal ? 'loser' : '');
+                const humClass = humVal > aiVal ? 'winner' : (humVal < aiVal ? 'loser' : '');
+                if (humVal > aiVal) humWins++;
+                const displayAi = m.format ? m.format(aiVal) : aiVal;
+                const displayHum = m.format ? m.format(humVal) : humVal;
+                body.innerHTML += `<tr><td>${m.label}</td><td class="${aiClass}">${displayAi}</td><td class="${humClass}">${displayHum}</td></tr>`;
+            });
+
+            const banner = document.getElementById('winner-banner');
+            if (humWins >= 2) banner.innerText = "PILOT WINS!";
+            else banner.innerText = "ALGORITHM WINS!";
+            document.getElementById('results-overlay').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
