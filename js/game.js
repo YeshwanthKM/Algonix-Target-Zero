@@ -703,47 +703,19 @@ $.updateScreen = function() {
 	//$.screen.x -= $.rumble.x;
 	//$.screen.y -= $.rumble.y;
 
-	// animate background canvas
-	$.cbg1.style.marginLeft = 
-		-( ( $.cbg1.width - $.cw ) / 2 ) // half the difference from bg to viewport
-		- ( ( $.cbg1.width - $.cw ) / 2 ) // half the diff again, modified by a percentage below
-		* ( ( -$.screen.x - ( $.ww - $.cw ) / 2 ) / ( ( $.ww - $.cw ) / 2) ) // viewport offset applied to bg
-		- $.rumble.x + 'px';
-	$.cbg1.style.marginTop = 
-		-( ( $.cbg1.height - $.ch ) / 2 ) 
-		- ( ( $.cbg1.height - $.ch ) / 2 )
-		* ( ( -$.screen.y - ( $.wh - $.ch ) / 2 ) / ( ( $.wh - $.ch ) / 2) ) 
-		- $.rumble.y + 'px';
-	$.cbg2.style.marginLeft = 
-		-( ( $.cbg2.width - $.cw ) / 2 ) // half the difference from bg to viewport
-		- ( ( $.cbg2.width - $.cw ) / 2 ) // half the diff again, modified by a percentage below
-		* ( ( -$.screen.x - ( $.ww - $.cw ) / 2 ) / ( ( $.ww - $.cw ) / 2) ) // viewport offset applied to bg
-		- $.rumble.x + 'px';
-	$.cbg2.style.marginTop = 
-		-( ( $.cbg2.height - $.ch ) / 2 ) 
-		- ( ( $.cbg2.height - $.ch ) / 2 )
-		* ( ( -$.screen.y - ( $.wh - $.ch ) / 2 ) / ( ( $.wh - $.ch ) / 2) ) 
-		- $.rumble.y + 'px';
-	$.cbg3.style.marginLeft = 
-		-( ( $.cbg3.width - $.cw ) / 2 ) // half the difference from bg to viewport
-		- ( ( $.cbg3.width - $.cw ) / 2 ) // half the diff again, modified by a percentage below
-		* ( ( -$.screen.x - ( $.ww - $.cw ) / 2 ) / ( ( $.ww - $.cw ) / 2) ) // viewport offset applied to bg
-		- $.rumble.x + 'px';
-	$.cbg3.style.marginTop = 
-		-( ( $.cbg3.height - $.ch ) / 2 ) 
-		- ( ( $.cbg3.height - $.ch ) / 2 )
-		* ( ( -$.screen.y - ( $.wh - $.ch ) / 2 ) / ( ( $.wh - $.ch ) / 2) ) 
-		- $.rumble.y + 'px';
-	$.cbg4.style.marginLeft = 
-		-( ( $.cbg4.width - $.cw ) / 2 ) // half the difference from bg to viewport
-		- ( ( $.cbg4.width - $.cw ) / 2 ) // half the diff again, modified by a percentage below
-		* ( ( -$.screen.x - ( $.ww - $.cw ) / 2 ) / ( ( $.ww - $.cw ) / 2) ) // viewport offset applied to bg
-		- $.rumble.x + 'px';
-	$.cbg4.style.marginTop = 
-		-( ( $.cbg4.height - $.ch ) / 2 ) 
-		- ( ( $.cbg4.height - $.ch ) / 2 )
-		* ( ( -$.screen.y - ( $.wh - $.ch ) / 2 ) / ( ( $.wh - $.ch ) / 2) ) 
-		- $.rumble.y + 'px';
+	// animate background canvases with hardware acceleration (translate3d)
+	var xMod = ( ( -$.screen.x - ( $.ww - $.cw ) / 2 ) / ( ( $.ww - $.cw ) / 2) );
+	var yMod = ( ( -$.screen.y - ( $.wh - $.ch ) / 2 ) / ( ( $.wh - $.ch ) / 2) );
+
+	var layers = [$.cbg1, $.cbg2, $.cbg3, $.cbg4];
+	for( var i = 0; i < layers.length; i++ ) {
+		var layer = layers[ i ];
+		var dx = -( ( layer.width - $.cw ) / 2 );
+		var dy = -( ( layer.height - $.ch ) / 2 );
+		var x = dx + dx * xMod - $.rumble.x;
+		var y = dy + dy * yMod - $.rumble.y;
+		layer.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
+	}
 
 	$.mousescreen();
 };
