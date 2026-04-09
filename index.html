@@ -204,12 +204,12 @@
                     <button id="hud-autoshoot-btn" class="hud-btn" onclick="toggleHudAutoshoot()">AUTO-SHOOT: OFF</button>
                 </div>
 
-                <!-- NEW HTML MENU -->
+                <!-- NEW HTML MENU (DUEL FOCUS) -->
                 <div id="menu-overlay">
                     <div class="neon-card">
                         <h1 class="card-title">TARGET ZERO</h1>
-                        <p class="card-tagline">Survive the swarm. Outmaneuver the algorithm.</p>
-                        <button class="btn-launch" onclick="startPlay()">Launch Game</button>
+                        <p class="card-tagline">THE ULTIMATE ALGORITHMIC DUEL.<br>HUMAN VS ARTIFICIAL INTELLIGENCE.</p>
+                        <button class="btn-launch" onclick="startPlay()">Enter Duel Arena</button>
                     </div>
                 </div>
 			</div>
@@ -271,10 +271,7 @@
 
             // Menu Helpers
             window.startPlay = function() {
-                document.getElementById('menu-overlay').style.display = 'none';
-                $.reset();
-                $.audio.play('levelup');
-                $.setState('play');
+                location.href = 'duel.html';
             };
 
             window.showStats = function() {
@@ -312,7 +309,6 @@
                     if ($.state === 'menu') {
                         overlay.style.display = 'flex';
                         hud.style.display = 'none';
-                        document.getElementById('duel-menu-btn').style.display = 'block';
                     } else {
                         overlay.style.display = 'none';
                         hud.style.display = 'flex';

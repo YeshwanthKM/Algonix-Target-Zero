@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Target Zero - AI vs Human Duel</title>
+    <title>Target Zero - Duel Arena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
             background: #080808;
             color: #fff;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -40,6 +41,7 @@
         }
 
         .stat-label {
+            font-family: 'Orbitron', sans-serif;
             font-size: 10px;
             color: #0ff;
             text-transform: uppercase;
@@ -47,6 +49,7 @@
         }
 
         .stat-value {
+            font-family: 'Orbitron', sans-serif;
             font-size: 20px;
             font-weight: bold;
             color: #fff;
@@ -59,6 +62,7 @@
         }
 
         #timer {
+            font-family: 'Orbitron', sans-serif;
             font-size: 32px;
             color: #0f0;
             text-shadow: 0 0 10px #0f0;
@@ -82,13 +86,17 @@
             top: 15px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
+            background: rgba(10,10,12,0.9);
             padding: 6px 20px;
             border: 1px solid #0ff;
+            border-radius: 4px;
+            font-family: 'Orbitron', sans-serif;
             font-size: 14px;
             z-index: 10;
             pointer-events: none;
             letter-spacing: 3px;
+            color: #0ff;
+            box-shadow: 0 0 15px rgba(0,255,255,0.2);
         }
 
         iframe {
@@ -122,16 +130,19 @@
         }
 
         #play-btn {
+            font-family: 'Orbitron', sans-serif;
             background: transparent;
             color: #0f0;
             border: 3px solid #0f0;
-            padding: 30px 80px;
-            font-size: 48px;
+            padding: 25px 60px;
+            font-size: 36px;
+            font-weight: 700;
             cursor: pointer;
-            font-family: inherit;
             text-transform: uppercase;
             transition: all 0.3s;
-            box-shadow: 0 0 15px #0f0;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            border-radius: 60px;
+            letter-spacing: 4px;
         }
 
         #play-btn:disabled {
@@ -144,7 +155,8 @@
         #play-btn:not(:disabled):hover {
             background: #0f0;
             color: #000;
-            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.5);
+            transform: scale(1.05);
         }
 
         #status-text {
@@ -308,8 +320,8 @@
     </div>
 
     <div id="results-overlay">
-        <h1 style="font-size: 64px; color: #0ff; margin-bottom: 0;">DUEL ENDED</h1>
-        <div id="winner-banner" style="font-size: 32px; color: #0f0; margin-bottom: 30px;">HUMAN WINS!</div>
+        <h1 style="font-family: 'Orbitron', sans-serif; font-size: 64px; color: #0ff; margin-bottom: 0; text-shadow: 0 0 20px #0ff;">DUEL ENDED</h1>
+        <div id="winner-banner" style="font-family: 'Orbitron', sans-serif; font-size: 32px; color: #0f0; margin-bottom: 30px; letter-spacing: 5px;">HUMAN WINS!</div>
         
         <table id="results-table">
             <thead>
